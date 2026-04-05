@@ -10,6 +10,7 @@ fake = Faker()
 create_user_url = "/api/v1/user/"
 login_url = "/api/v1/auth/login"
 
+@pytest.mark.regression_test
 def test_send_post_create_user_is_201_and_id_is_integer():
     username = f"user_{int(time.time())}"
     create_user_payload = { "username": username,
@@ -27,6 +28,7 @@ def test_send_post_create_user_is_201_and_id_is_integer():
     assert created_userId is not None
     assert response.json().get("message") == "User created successfully"
 
+@pytest.mark.sanity_test
 def test_login_user_is_201_and_returns_access_token(created_user):
     headers = build_request_headers(content_type="application/json")
     login_payload = {
@@ -42,7 +44,7 @@ def test_login_user_is_201_and_returns_access_token(created_user):
     assert "accessToken" in response.json()
 
 
-@pytest.mark.sanity_test
+@pytest.mark.smoke_test
 def test_get_user_by_id_is_200_and_returns_created_firstname(created_user, user_access_token):
     headers = build_request_headers(content_type="application/json", access_token=user_access_token)
     response = SESSION.get(f"{BASE_URL}/api/v1/user/{created_user["userId"]}",
@@ -53,8 +55,7 @@ def test_get_user_by_id_is_200_and_returns_created_firstname(created_user, user_
     assert response.status_code == 200
     assert created_firstname is not None
 
-
-
+@pytest.mark.regression_test
 def test_full_update_user_by_id_is_200_and_returns_correct_message(created_user, user_access_token):
     headers = build_request_headers(content_type="application/json", access_token=user_access_token)
     full_update_payload = {
@@ -68,6 +69,7 @@ def test_full_update_user_by_id_is_200_and_returns_correct_message(created_user,
     assert response.status_code == 200
     assert response.json().get("message") == "User updated successfully"
 
+@pytest.mark.sanity_test
 def test_full_update_user_by_id_changes_firstname(created_user, user_access_token):
     headers = build_request_headers(content_type="application/json", access_token=user_access_token)
     response = SESSION.get(f"{BASE_URL}/api/v1/user/{created_user["userId"]}",
@@ -77,7 +79,7 @@ def test_full_update_user_by_id_changes_firstname(created_user, user_access_toke
     assert updated_firstname is not None
     assert updated_firstname != created_user["firstName"]
 
-@pytest.mark.regression_test
+@pytest.mark.smoke_test
 def test_patch_user_by_id_returns_200(created_user, user_access_token):
     headers = build_request_headers(content_type="application/json", access_token=user_access_token)
     partial_update_payload = {
@@ -90,6 +92,7 @@ def test_patch_user_by_id_returns_200(created_user, user_access_token):
     assert response.status_code == 200
     assert response.json().get("message") == "User updated successfully"
 
+@pytest.mark.sanity_test
 def test_partial_update_user_by_id_changes_lastname(created_user, user_access_token):
     headers = build_request_headers(content_type="application/json", access_token=user_access_token)
     response = SESSION.get(f"{BASE_URL}/api/v1/user/{created_user["userId"]}",
@@ -99,7 +102,7 @@ def test_partial_update_user_by_id_changes_lastname(created_user, user_access_to
     assert updated_lastname is not None
     assert updated_lastname != created_user["lastName"]
 
-@pytest.mark.smoke_test
+@pytest.mark.regression_test
 def test_delete_user(created_user, user_access_token):
     headers = build_request_headers(content_type="application/json", access_token=user_access_token)
     response = SESSION.delete(f"{BASE_URL}/api/v1/user/{created_user["userId"]}",
